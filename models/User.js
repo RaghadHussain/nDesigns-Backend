@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String
+    },
+    loyaltyPoints: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: true },
