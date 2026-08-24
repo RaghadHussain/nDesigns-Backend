@@ -6,6 +6,11 @@ const categorySchema = new mongoose.Schema(
         type: String,
         unique: true,
         required: true
+    },
+    parentCategory:{
+      type: mongoose.Schema.Types.ObjectId,
+      default:null,
+      ref: 'Category'
     }
   },
   { timestamps: true },
