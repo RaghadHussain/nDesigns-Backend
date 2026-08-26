@@ -26,7 +26,7 @@ app.use(morgan('dev'))
 // Routes
 app.use('/auth',authRoutes)
 app.use('/address', addressRoutes)
-app.use('/', variantRoutes)
+app.use('/variants', variantRoutes)
 app.use('/products', productRoutes)
 
 
