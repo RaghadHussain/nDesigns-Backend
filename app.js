@@ -35,7 +35,7 @@ app.use('/address', addressRoutes)
 app.use('/variants', variantRoutes)
 app.use('/products', productRoutes)
 app.use('/orders', orderRoutes)
-app.use('points', loyaltySettingRoutes)
+app.use('/points', loyaltySettingRoutes)
 
 
 app.use('/categories', categoryRoutes)

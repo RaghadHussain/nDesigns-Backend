@@ -4,7 +4,7 @@ const LoyaltySettings = require('../models/LoyaltySettings')
 async function addLoyaltySetting(req, res) {
     try {
         const { pointsPerBHD } = req.body
-        const newLoyalitySetting = await LoyaltySettings.create(pointsPerBHD)
+        const newLoyalitySetting = await LoyaltySettings.create({ pointsPerBHD })
 
         res.status(201).json(newLoyalitySetting)
     } catch (e) {
@@ -25,9 +25,18 @@ async function getLoyaltySetting(req, res) {
 async function updateLoyalitySetting(req, res) {
     try {
         const { pointsPerBHD } = req.body
-        const updateData = pointsPerBHD
 
-        const updatedLoyaltyPoints = await LoyaltySettings.findByIdAndUpdate(req.params.id)
+        const updatedLoyaltyPoints = await LoyaltySettings.findByIdAndUpdate(
+            req.params.id,
+            { pointsPerBHD },
+            { new: true, runValidators: true }
+        )
+
+        if (!updatedLoyaltyPoints) {
+            return res.status(404).json({ message: 'Loyalty setting not found.' })
+        }
+
+        res.status(200).json(updatedLoyaltyPoints)
     } catch (e) {
         res.status(500).json({ message: 'Internal Server Error' })
     }
