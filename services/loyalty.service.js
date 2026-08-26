@@ -55,5 +55,5 @@ module.exports = {
     calculatePointsEarned,
     calculateRedemptionValue,
     redeemPoints,
-    earnPoints,
+    earnPoints
 }

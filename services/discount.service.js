@@ -16,7 +16,7 @@ async function validateDiscount(code, userId) {
         throw new Error('Discount code usage limit has been reached.')
     }
 
-    const alreadyUsed = await Order.findOne({ userId: userId, discountId: discount._id })
+    const alreadyUsed = await Order.findOne({ userId, discountId: discount._id })
     if (alreadyUsed) {
         throw new Error('Discount code has already been used by this user.')
     }
@@ -30,5 +30,5 @@ async function incrementUsage(discountId) {
 
 module.exports = {
     validateDiscount,
-    incrementUsage,
+    incrementUsage
 }

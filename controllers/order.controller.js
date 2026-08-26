@@ -3,11 +3,7 @@ const orderItemService = require('../services/orderItem.service')
 
 async function checkout(req, res) {
     try {
-        const addressId = req.body.addressId
-        const paymentMethod = req.body.paymentMethod
-        const discountCode = req.body.discountCode
-        const pointsToRedeem = req.body.pointsToRedeem
-        const deliveryFee = req.body.deliveryFee
+        const { addressId, paymentMethod, discountCode, pointsToRedeem, deliveryFee } = req.body
 
         if (!addressId || !paymentMethod) {
             return res.status(400).json({ message: 'Address and payment method are required.' })
@@ -15,11 +11,11 @@ async function checkout(req, res) {
 
         const order = await orderService.checkout({
             userId: req.user._id,
-            addressId: addressId,
-            paymentMethod: paymentMethod,
-            discountCode: discountCode,
-            pointsToRedeem: pointsToRedeem,
-            deliveryFee: deliveryFee,
+            addressId,
+            paymentMethod,
+            discountCode,
+            pointsToRedeem,
+            deliveryFee
         })
 
         res.status(201).json(order)
@@ -31,7 +27,7 @@ async function checkout(req, res) {
 
 async function updateOrderStatus(req, res) {
     try {
-        const status = req.body.status
+        const { status } = req.body
         const order = await orderService.updateOrderStatus(req.params.id, status)
         res.status(200).json(order)
     } catch (err) {
@@ -53,11 +49,21 @@ async function getUserOrders(req, res) {
     }
 }
 
+async function getAllOrders(req, res) {
+    try {
+        const orders = await orderService.getAllOrders()
+        res.status(200).json(orders)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Internal Server Error' })
+    }
+}
+
 async function getOrderById(req, res) {
     try {
         const order = await orderService.getOrderById(req.params.id, req.user._id)
         const items = await orderItemService.getOrderItems(order._id)
-        res.status(200).json({ order: order, items: items })
+        res.status(200).json({ order, items })
     } catch (err) {
         console.log(err)
         if (err.message === 'Order not found.') {
@@ -84,6 +90,7 @@ module.exports = {
     checkout,
     updateOrderStatus,
     getUserOrders,
+    getAllOrders,
     getOrderById,
-    cancelOrder,
+    cancelOrder
 }

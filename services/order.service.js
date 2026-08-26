@@ -15,12 +15,8 @@ function calculateSubtotal(cartItems) {
 }
 
 async function checkout(data) {
-    const userId = data.userId
-    const addressId = data.addressId
-    const paymentMethod = data.paymentMethod
-    const discountCode = data.discountCode
-    let pointsToRedeem = data.pointsToRedeem
-    let deliveryFee = data.deliveryFee
+    const { userId, addressId, paymentMethod, discountCode } = data
+    let { pointsToRedeem, deliveryFee } = data
 
     if (!pointsToRedeem) {
         pointsToRedeem = 0
@@ -29,7 +25,7 @@ async function checkout(data) {
         deliveryFee = 0
     }
 
-    const cart = await Cart.findOne({ userId: userId })
+    const cart = await Cart.findOne({ userId })
     if (!cart) {
         throw new Error('Cart not found.')
     }
@@ -70,15 +66,15 @@ async function checkout(data) {
     const totalAmount = amountAfterPoints + deliveryFee
 
     const order = await Order.create({
-        userId: userId,
-        addressId: addressId,
+        userId,
+        addressId,
         orderStatus: 'pending',
-        paymentMethod: paymentMethod,
-        subTotal: subTotal,
+        paymentMethod,
+        subTotal,
         discountId: discount ? discount._id : undefined,
-        discountAmount: discountAmount,
-        deliveryFee: deliveryFee,
-        totalAmount: totalAmount,
+        discountAmount,
+        deliveryFee,
+        totalAmount
     })
 
     await orderItemService.createOrderItems(order._id, cartItems)
@@ -105,7 +101,7 @@ async function updateOrderStatus(orderId, status) {
     const order = await Order.findByIdAndUpdate(
         orderId,
         { orderStatus: status },
-        { new: true, runValidators: true },
+        { new: true, runValidators: true }
     )
     if (!order) {
         throw new Error('Order not found.')
@@ -114,11 +110,15 @@ async function updateOrderStatus(orderId, status) {
 }
 
 async function getUserOrders(userId) {
-    return Order.find({ userId: userId }).sort({ createdAt: -1 })
+    return Order.find({ userId }).sort({ createdAt: -1 })
+}
+
+async function getAllOrders() {
+    return Order.find().sort({ createdAt: -1 })
 }
 
 async function getOrderById(orderId, userId) {
-    const order = await Order.findOne({ _id: orderId, userId: userId })
+    const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
         throw new Error('Order not found.')
     }
@@ -126,7 +126,7 @@ async function getOrderById(orderId, userId) {
 }
 
 async function cancelOrder(orderId, userId) {
-    const order = await Order.findOne({ _id: orderId, userId: userId })
+    const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
         throw new Error('Order not found.')
     }
@@ -146,6 +146,7 @@ module.exports = {
     checkout,
     updateOrderStatus,
     getUserOrders,
+    getAllOrders,
     getOrderById,
-    cancelOrder,
+    cancelOrder
 }
