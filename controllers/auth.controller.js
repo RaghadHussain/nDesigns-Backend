@@ -121,8 +121,42 @@ async function verifyUser(req, res) {
   }
 }
 
+
+async function updateUserDetails(req, res) {
+  try {
+    if (req.params.id !== req.user._id) {
+      return res.status(403).json({ message: "You Can Only Update Your Own Account." });
+    }
+
+    const { username, email, phoneNumber } = req.body
+    const updateData = { username, email, phoneNumber }
+
+    const updatedUserDetails = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true })
+    if (!updatedUserDetails) {
+      return res.status(404).json({ message: 'No User Found' })
+    }
+
+    res.status(200).json(updatedUserDetails)
+  } catch (err) {
+    console.error(err);
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyValue)[0];
+      return res.status(409).json({ message: `This ${field} is already in use.` });
+    }
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+}
+
+
 module.exports = {
   signUp,
   signIn,
   verifyUser,
+  updateUserDetails
 };
