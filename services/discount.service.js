@@ -1,5 +1,5 @@
 const Discount = require("../models/Discount");
-const Order = require("../models/order");
+const Order = require("../models/Order");
 
 async function validateDiscount(code, userId) {
   const discount = await Discount.findOne({ code: code.toUpperCase().trim() });

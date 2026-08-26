@@ -1,4 +1,4 @@
-const Order = require("../models/order");
+const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const CartItem = require("../models/CartItem");
 const discountService = require("./discount.service");
@@ -87,6 +87,18 @@ async function updateOrderStatus(orderId, status) {
   return order;
 }
 
+async function getUserOrders(userId) {
+  return Order.find({ userId }).sort({ createdAt: -1 });
+}
+
+async function getOrderById(orderId, userId) {
+  const order = await Order.findOne({ _id: orderId, userId });
+  if (!order) {
+    throw new Error("Order not found.");
+  }
+  return order;
+}
+
 async function cancelOrder(orderId, userId) {
   const order = await Order.findOne({ _id: orderId, userId });
   if (!order) {
@@ -107,5 +119,7 @@ module.exports = {
   calculateSubtotal,
   checkout,
   updateOrderStatus,
+  getUserOrders,
+  getOrderById,
   cancelOrder,
 };
