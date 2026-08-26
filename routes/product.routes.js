@@ -7,6 +7,8 @@ const variantController = require("../controllers/variant.controller");
 
 router.post("/", verifyToken, isAdmin, productController.createProduct);
 
+router.get("/", productController.getAllProducts);
+
 router.get("/:id", validateObjectId, productController.getProductById);
 
 router.put("/:id", verifyToken, isAdmin, validateObjectId, productController.updateProduct);
