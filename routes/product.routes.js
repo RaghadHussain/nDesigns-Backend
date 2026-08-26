@@ -9,6 +9,8 @@ const upload = require('../middleware/upload')
 
 router.post("/", verifyToken, isAdmin, upload.array('images'), productController.createProduct);
 
+router.get("/", productController.getAllProducts);
+
 router.get("/:id", validateObjectId, productController.getProductById);
 
 router.put("/:id", verifyToken, isAdmin,upload.array('images'), validateObjectId, productController.updateProduct);
