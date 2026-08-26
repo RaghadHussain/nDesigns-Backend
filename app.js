@@ -16,7 +16,7 @@ const loyaltySettingRoutes = require('./routes/loyaltySettings.routes')
 const categoryRoutes = require('./routes/category.routes')
 const cartRoutes = require('./routes/cart.routes')
 const cartItemRoutes = require('./routes/cartItem.routes')
-
+const path = require('path')
 
 // Middleware
 app.use(
@@ -25,6 +25,7 @@ app.use(
     })
 );
 app.use(express.json())
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 app.use(morgan('dev'))
 
 
@@ -36,7 +37,7 @@ app.use('/variants', variantRoutes)
 app.use('/products', productRoutes)
 app.use('/orders', orderRoutes)
 app.use('/discounts', discountRoutes)
-app.use('points', loyaltySettingRoutes)
+app.use('/points', loyaltySettingRoutes)
 
 
 app.use('/categories', categoryRoutes)
