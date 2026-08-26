@@ -58,7 +58,7 @@ async function deleteUserAddress(req, res){
         if(!deletedAddress){
                 return res.status(404).json({ message: 'No Address Found' })
             }
-        res.status(200).json(deletedAddress)
+        res.status(204).json(deletedAddress)
     }catch(e){
         res.status(500).json({ message: e.message })
     }
