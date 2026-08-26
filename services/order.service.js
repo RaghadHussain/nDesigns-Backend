@@ -25,6 +25,15 @@ async function checkout(data) {
         deliveryFee = 0
     }
 
+    if (pointsToRedeem < 0) {
+        console.log('pointsToRedeem cannot be negative')
+        return null
+    }
+    if (deliveryFee < 0) {
+        console.log('deliveryFee cannot be negative')
+        return null
+    }
+
     const cart = await Cart.findOne({ userId })
     if (!cart) {
         console.log('Cart not found')
