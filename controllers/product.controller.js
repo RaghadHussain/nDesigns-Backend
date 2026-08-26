@@ -1,7 +1,9 @@
 const Product = require('../models/Product')
 
 async function createProduct(req, res) {
-    const { name, images, description, category } = req.body
+    const { name, description, category } = req.body
+    const images = req.files && req.files.length ? req.files.map(file => `/uploads/${file.filename}`) : undefined;
+
     try {
         const createdProduct = await Product.create({ name, images, description, category })
         res.status(201).json(createdProduct)
@@ -31,7 +33,7 @@ async function getProductById(req, res) {
 }
 
 async function updateProduct(req, res) {
-    const { name, images, description, category } = req.body
+    const { name, description, category } = req.body
 
     try {
         const product = await Product.findById(req.params.id)
@@ -39,6 +41,11 @@ async function updateProduct(req, res) {
             return res.status(404).json({ message: 'Product not found.' })
         }
 
+        const images = req.files && req.files.length
+            ? req.files.map(file => `/uploads/${file.filename}`)
+            : product.images
+
+        
         const updatedProduct = await Product.findByIdAndUpdate(req.params.id,
             { name, images, description, category },
             { new: true, runValidators: true })
