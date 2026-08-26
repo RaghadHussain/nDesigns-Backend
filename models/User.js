@@ -16,14 +16,20 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       trim: true,
+      unique: true,
+      lowercase: true,
       required: true
     },
     phoneNumber: {
-      type: Number,
-      required: true
+      type: String,
+      required: true,
+      unique: true,
+      trim: true
     },
     role: {
-      type: String
+      type: String,
+      enum: ['customer', 'admin'],
+      required: true
     },
     loyaltyPoints: {
       type: Number,

@@ -4,22 +4,29 @@ const jwt = require("jsonwebtoken");
 
 async function signUp(req, res) {
   try {
-    const { username, password } = req.body;
+    const { username, password, email, phoneNumber } = req.body;
 
     // Validation
-    if (!username || !password) return res.status(400).json({message: "Username and password are required.",});
-    if (password.length < 6) return res.status(400).json({message: "Password must be more than 6 characters",});
+    if (!username || !password) return res.status(400).json({ message: "Username and password are required.", });
+    if (password.length < 6) return res.status(400).json({ message: "Password must be more than 6 characters", });
+    if (!phoneNumber) return res.status(400).json({ message: 'Phone number is required.' });
 
     const user = await User.create({
       username,
       hashedPassword: await bcrypt.hash(password, 12),
+      email,
+      phoneNumber,
+      role: "customer",
     });
 
     const { _id, createdAt, updatedAt } = user;
 
     res
       .status(201)
-      .json({ username: user.username, _id, createdAt, updatedAt });
+      .json({
+        username: user.username, _id, createdAt, updatedAt, email: user.email, phoneNumber: user.phoneNumber,
+        role: user.role,
+      });
   } catch (err) {
     console.log(err);
     if (err.name === "ValidationError") {
@@ -49,7 +56,7 @@ async function signIn(req, res) {
         message: "Username and password are required.",
       });
     }
-    const user = await User.findOne({ username:username.toLowerCase().trim() });
+    const user = await User.findOne({ username: username.toLowerCase().trim() });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
@@ -74,6 +81,9 @@ async function signIn(req, res) {
       user: {
         _id: user._id,
         username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -96,8 +106,11 @@ async function verifyUser(req, res) {
     }
 
     return res.status(200).json({
-        _id: user._id,
-        username: user.username,
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
     });
   } catch (err) {
     console.error(err);

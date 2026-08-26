@@ -25,6 +25,8 @@ const productVariantSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+productVariantSchema.index({ productId: 1, size: 1 }, { unique: true });
+
 const ProductVariant = mongoose.model("ProductVariant", productVariantSchema);
 
 module.exports = ProductVariant;
