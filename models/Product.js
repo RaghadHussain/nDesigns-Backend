@@ -5,14 +5,16 @@ const productSchema = new mongoose.Schema(
     name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     images: {
         type: [String]
     },
     description: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
