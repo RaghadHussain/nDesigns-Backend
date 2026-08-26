@@ -11,6 +11,9 @@ const addressRoutes = require('./routes/address.routes')
 const variantRoutes = require('./routes/variant.routes')
 const productRoutes = require('./routes/product.routes')
 const loyaltySettingRoutes = require('./routes/loyaltySettings.routes')
+const categoryRoutes = require('./routes/category.routes')
+const cartRoutes = require('./routes/cart.routes')
+const cartItemRoutes = require('./routes/cartItem.routes')
 
 
 // Middleware
@@ -32,6 +35,9 @@ app.use('/products', productRoutes)
 app.use('points', loyaltySettingRoutes)
 
 
+app.use('/categories', categoryRoutes)
+app.use('/cart', cartRoutes)
+app.use('/cartItem', cartItemRoutes)
 
 
 module.exports = app
