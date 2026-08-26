@@ -27,13 +27,12 @@ async function addCartItem(req, res) {
             cartItem = await CartItem.create({ cartId: cart._id, variantId, quantity })
         }
 
-        return res.status(201).json(cartItem)
+        res.status(201).json(cartItem)
     } catch (err) {
-        console.log(err)
         if (err.name === 'ValidationError') {
             return res.status(400).json({ message: err.message })
         }
-        return res.status(500).json({ message: 'Internal Server Error' })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
@@ -57,13 +56,12 @@ async function updateCartItem(req, res) {
         cartItem.quantity = quantity
         await cartItem.save()
 
-        return res.status(200).json(cartItem)
+        res.status(200).json(cartItem)
     } catch (err) {
-        console.log(err)
         if (err.name === 'ValidationError') {
             return res.status(400).json({ message: err.message })
         }
-        return res.status(500).json({ message: 'Internal Server Error' })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
@@ -81,8 +79,7 @@ async function deleteCartItem(req, res) {
 
         return res.status(200).json({ message: 'Cart item deleted successfully.' })
     } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: 'Internal Server Error' })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
