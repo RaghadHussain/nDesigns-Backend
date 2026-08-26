@@ -49,7 +49,7 @@ async function updateCartItem(req, res) {
             return res.status(404).json({ message: 'Cart not found.' })
         }
 
-        const cartItem = await CartItem.findOne({ _id: req.params.itemId, cartId: cart._id })
+        const cartItem = await CartItem.findOne({ _id: req.params.id, cartId: cart._id })
         if (!cartItem) {
             return res.status(404).json({ message: 'Cart item not found.' })
         }
@@ -74,7 +74,7 @@ async function deleteCartItem(req, res) {
             return res.status(404).json({ message: 'Cart not found.' })
         }
 
-        const cartItem = await CartItem.findOneAndDelete({ _id: req.params.itemId, cartId: cart._id })
+        const cartItem = await CartItem.findOneAndDelete({ _id: req.params.id, cartId: cart._id })
         if (!cartItem) {
             return res.status(404).json({ message: 'Cart item not found.' })
         }

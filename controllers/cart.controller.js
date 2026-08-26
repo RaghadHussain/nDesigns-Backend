@@ -35,5 +35,5 @@ async function clearMyCart(req, res) {
 
 module.exports = {
     getMyCart,
-    clearMyCart,
+    clearMyCart
 }
