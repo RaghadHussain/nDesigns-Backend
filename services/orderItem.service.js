@@ -5,10 +5,10 @@ async function createOrderItems(orderId, cartItems) {
 
     for (const item of cartItems) {
         orderItemsData.push({
-            orderId: orderId,
+            orderId,
             variantId: item.variantId._id,
             quantity: item.quantity,
-            totalPrice: item.variantId.price * item.quantity,
+            totalPrice: item.variantId.price * item.quantity
         })
     }
 
@@ -16,10 +16,10 @@ async function createOrderItems(orderId, cartItems) {
 }
 
 async function getOrderItems(orderId) {
-    return OrderItem.find({ orderId: orderId }).populate('variantId')
+    return OrderItem.find({ orderId }).populate('variantId')
 }
 
 module.exports = {
     createOrderItems,
-    getOrderItems,
+    getOrderItems
 }

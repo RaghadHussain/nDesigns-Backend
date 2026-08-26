@@ -8,6 +8,8 @@ router.post('/checkout', verifyToken, orderController.checkout)
 
 router.get('/', verifyToken, orderController.getUserOrders)
 
+router.get('/admin', verifyToken, isAdmin, orderController.getAllOrders)
+
 router.get('/:id', verifyToken, validateObjectId, orderController.getOrderById)
 
 router.patch('/:id/status', verifyToken, isAdmin, validateObjectId, orderController.updateOrderStatus)

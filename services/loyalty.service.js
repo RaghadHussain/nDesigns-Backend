@@ -20,15 +20,18 @@ async function calculateRedemptionValue(pointsToRedeem, userId) {
 
     const user = await User.findById(userId)
     if (!user) {
-        throw new Error('User not found.')
+        console.log('User not found')
+        return null
     }
     if (pointsToRedeem > user.loyaltyPoints) {
-        throw new Error('Insufficient loyalty points.')
+        console.log('Insufficient loyalty points')
+        return null
     }
 
     const pointsPerBHD = await getPointsPerBHD()
     if (!pointsPerBHD) {
-        throw new Error('Loyalty settings are not configured.')
+        console.log('Loyalty settings are not configured')
+        return null
     }
 
     return pointsToRedeem / pointsPerBHD
@@ -55,5 +58,5 @@ module.exports = {
     calculatePointsEarned,
     calculateRedemptionValue,
     redeemPoints,
-    earnPoints,
+    earnPoints
 }

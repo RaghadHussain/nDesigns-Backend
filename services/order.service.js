@@ -15,12 +15,8 @@ function calculateSubtotal(cartItems) {
 }
 
 async function checkout(data) {
-    const userId = data.userId
-    const addressId = data.addressId
-    const paymentMethod = data.paymentMethod
-    const discountCode = data.discountCode
-    let pointsToRedeem = data.pointsToRedeem
-    let deliveryFee = data.deliveryFee
+    const { userId, addressId, paymentMethod, discountCode } = data
+    let { pointsToRedeem, deliveryFee } = data
 
     if (!pointsToRedeem) {
         pointsToRedeem = 0
@@ -29,20 +25,32 @@ async function checkout(data) {
         deliveryFee = 0
     }
 
-    const cart = await Cart.findOne({ userId: userId })
+    if (pointsToRedeem < 0) {
+        console.log('pointsToRedeem cannot be negative')
+        return null
+    }
+    if (deliveryFee < 0) {
+        console.log('deliveryFee cannot be negative')
+        return null
+    }
+
+    const cart = await Cart.findOne({ userId })
     if (!cart) {
-        throw new Error('Cart not found.')
+        console.log('Cart not found')
+        return null
     }
 
     const cartItems = await CartItem.find({ cartId: cart._id }).populate('variantId')
     if (cartItems.length === 0) {
-        throw new Error('Cart is empty.')
+        console.log('Cart is empty')
+        return null
     }
 
     for (const item of cartItems) {
         const inStock = await variantService.isInStock(item.variantId._id, item.quantity)
         if (!inStock) {
-            throw new Error('Insufficient stock for variant ' + item.variantId._id + '.')
+            console.log('Insufficient stock for variant ' + item.variantId._id)
+            return null
         }
     }
 
@@ -52,6 +60,9 @@ async function checkout(data) {
     let discountAmount = 0
     if (discountCode) {
         discount = await discountService.validateDiscount(discountCode, userId)
+        if (!discount) {
+            return null
+        }
         discountAmount = subTotal * (discount.discountValue / 100)
     }
 
@@ -61,6 +72,9 @@ async function checkout(data) {
     }
 
     const pointsDeduction = await loyaltyService.calculateRedemptionValue(pointsToRedeem, userId)
+    if (pointsDeduction === null) {
+        return null
+    }
 
     let amountAfterPoints = amountAfterDiscount - pointsDeduction
     if (amountAfterPoints < 0) {
@@ -70,15 +84,15 @@ async function checkout(data) {
     const totalAmount = amountAfterPoints + deliveryFee
 
     const order = await Order.create({
-        userId: userId,
-        addressId: addressId,
+        userId,
+        addressId,
         orderStatus: 'pending',
-        paymentMethod: paymentMethod,
-        subTotal: subTotal,
+        paymentMethod,
+        subTotal,
         discountId: discount ? discount._id : undefined,
-        discountAmount: discountAmount,
-        deliveryFee: deliveryFee,
-        totalAmount: totalAmount,
+        discountAmount,
+        deliveryFee,
+        totalAmount
     })
 
     await orderItemService.createOrderItems(order._id, cartItems)
@@ -105,36 +119,45 @@ async function updateOrderStatus(orderId, status) {
     const order = await Order.findByIdAndUpdate(
         orderId,
         { orderStatus: status },
-        { new: true, runValidators: true },
+        { new: true, runValidators: true }
     )
     if (!order) {
-        throw new Error('Order not found.')
+        console.log('Order not found')
+        return null
     }
     return order
 }
 
 async function getUserOrders(userId) {
-    return Order.find({ userId: userId }).sort({ createdAt: -1 })
+    return Order.find({ userId }).sort({ createdAt: -1 })
+}
+
+async function getAllOrders() {
+    return Order.find().sort({ createdAt: -1 })
 }
 
 async function getOrderById(orderId, userId) {
-    const order = await Order.findOne({ _id: orderId, userId: userId })
+    const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
-        throw new Error('Order not found.')
+        console.log('Order not found')
+        return null
     }
     return order
 }
 
 async function cancelOrder(orderId, userId) {
-    const order = await Order.findOne({ _id: orderId, userId: userId })
+    const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
-        throw new Error('Order not found.')
+        console.log('Order not found')
+        return null
     }
     if (order.orderStatus === 'cancelled') {
-        throw new Error('Order is already cancelled.')
+        console.log('Order is already cancelled')
+        return null
     }
     if (order.orderStatus === 'shipped' || order.orderStatus === 'delivered') {
-        throw new Error('Order can no longer be cancelled.')
+        console.log('Order can no longer be cancelled')
+        return null
     }
 
     order.orderStatus = 'cancelled'
@@ -146,6 +169,7 @@ module.exports = {
     checkout,
     updateOrderStatus,
     getUserOrders,
+    getAllOrders,
     getOrderById,
-    cancelOrder,
+    cancelOrder
 }
