@@ -4,7 +4,8 @@ const addressSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'User',
+            unique: true
         },
         city: {
             type: String,
