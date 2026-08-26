@@ -1,21 +1,25 @@
-const OrderItem = require("../models/OrderItem");
+const OrderItem = require('../models/OrderItem')
 
 async function createOrderItems(orderId, cartItems) {
-  const orderItemsData = cartItems.map((item) => ({
-    orderId,
-    variantId: item.variantId._id,
-    quantity: item.quantity,
-    totalPrice: item.variantId.price * item.quantity,
-  }));
+    const orderItemsData = []
 
-  return OrderItem.insertMany(orderItemsData);
+    for (const item of cartItems) {
+        orderItemsData.push({
+            orderId: orderId,
+            variantId: item.variantId._id,
+            quantity: item.quantity,
+            totalPrice: item.variantId.price * item.quantity,
+        })
+    }
+
+    return OrderItem.insertMany(orderItemsData)
 }
 
 async function getOrderItems(orderId) {
-  return OrderItem.find({ orderId }).populate("variantId");
+    return OrderItem.find({ orderId: orderId }).populate('variantId')
 }
 
 module.exports = {
-  createOrderItems,
-  getOrderItems,
-};
+    createOrderItems,
+    getOrderItems,
+}
