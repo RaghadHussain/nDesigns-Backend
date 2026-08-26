@@ -4,21 +4,25 @@ const Order = require('../models/Order')
 async function validateDiscount(code, userId) {
     const discount = await Discount.findOne({ code: code.toUpperCase().trim() })
     if (!discount) {
-        throw new Error('Discount code not found.')
+        console.log('Discount code not found')
+        return null
     }
 
     const now = new Date()
     if (now < discount.startDate || now > discount.endDate) {
-        throw new Error('Discount code is not active.')
+        console.log('Discount code is not active')
+        return null
     }
 
     if (discount.usedCount >= discount.usageLimit) {
-        throw new Error('Discount code usage limit has been reached.')
+        console.log('Discount code usage limit has been reached')
+        return null
     }
 
     const alreadyUsed = await Order.findOne({ userId, discountId: discount._id })
     if (alreadyUsed) {
-        throw new Error('Discount code has already been used by this user.')
+        console.log('Discount code has already been used by this user')
+        return null
     }
 
     return discount

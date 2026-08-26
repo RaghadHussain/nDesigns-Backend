@@ -27,18 +27,21 @@ async function checkout(data) {
 
     const cart = await Cart.findOne({ userId })
     if (!cart) {
-        throw new Error('Cart not found.')
+        console.log('Cart not found')
+        return null
     }
 
     const cartItems = await CartItem.find({ cartId: cart._id }).populate('variantId')
     if (cartItems.length === 0) {
-        throw new Error('Cart is empty.')
+        console.log('Cart is empty')
+        return null
     }
 
     for (const item of cartItems) {
         const inStock = await variantService.isInStock(item.variantId._id, item.quantity)
         if (!inStock) {
-            throw new Error('Insufficient stock for variant ' + item.variantId._id + '.')
+            console.log('Insufficient stock for variant ' + item.variantId._id)
+            return null
         }
     }
 
@@ -48,6 +51,9 @@ async function checkout(data) {
     let discountAmount = 0
     if (discountCode) {
         discount = await discountService.validateDiscount(discountCode, userId)
+        if (!discount) {
+            return null
+        }
         discountAmount = subTotal * (discount.discountValue / 100)
     }
 
@@ -57,6 +63,9 @@ async function checkout(data) {
     }
 
     const pointsDeduction = await loyaltyService.calculateRedemptionValue(pointsToRedeem, userId)
+    if (pointsDeduction === null) {
+        return null
+    }
 
     let amountAfterPoints = amountAfterDiscount - pointsDeduction
     if (amountAfterPoints < 0) {
@@ -104,7 +113,8 @@ async function updateOrderStatus(orderId, status) {
         { new: true, runValidators: true }
     )
     if (!order) {
-        throw new Error('Order not found.')
+        console.log('Order not found')
+        return null
     }
     return order
 }
@@ -120,7 +130,8 @@ async function getAllOrders() {
 async function getOrderById(orderId, userId) {
     const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
-        throw new Error('Order not found.')
+        console.log('Order not found')
+        return null
     }
     return order
 }
@@ -128,13 +139,16 @@ async function getOrderById(orderId, userId) {
 async function cancelOrder(orderId, userId) {
     const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
-        throw new Error('Order not found.')
+        console.log('Order not found')
+        return null
     }
     if (order.orderStatus === 'cancelled') {
-        throw new Error('Order is already cancelled.')
+        console.log('Order is already cancelled')
+        return null
     }
     if (order.orderStatus === 'shipped' || order.orderStatus === 'delivered') {
-        throw new Error('Order can no longer be cancelled.')
+        console.log('Order can no longer be cancelled')
+        return null
     }
 
     order.orderStatus = 'cancelled'

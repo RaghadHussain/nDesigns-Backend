@@ -33,10 +33,14 @@ async function applyDiscount(req, res) {
 
         const discount = await discountService.validateDiscount(code, req.user._id)
 
+        if (!discount) {
+            return res.status(400).json({ message: 'Discount code is invalid or cannot be used.' })
+        }
+
         res.status(200).json({ code: discount.code, discountValue: discount.discountValue })
     } catch (err) {
         console.log(err)
-        res.status(400).json({ message: err.message })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 

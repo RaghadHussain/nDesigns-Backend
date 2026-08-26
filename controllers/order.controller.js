@@ -18,10 +18,14 @@ async function checkout(req, res) {
             deliveryFee
         })
 
+        if (!order) {
+            return res.status(400).json({ message: 'Checkout failed. Please check your cart, discount code, and points.' })
+        }
+
         res.status(201).json(order)
     } catch (err) {
         console.log(err)
-        res.status(400).json({ message: err.message })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
@@ -29,13 +33,15 @@ async function updateOrderStatus(req, res) {
     try {
         const { status } = req.body
         const order = await orderService.updateOrderStatus(req.params.id, status)
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found.' })
+        }
+
         res.status(200).json(order)
     } catch (err) {
         console.log(err)
-        if (err.message === 'Order not found.') {
-            return res.status(404).json({ message: err.message })
-        }
-        res.status(400).json({ message: err.message })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
@@ -62,13 +68,15 @@ async function getAllOrders(req, res) {
 async function getOrderById(req, res) {
     try {
         const order = await orderService.getOrderById(req.params.id, req.user._id)
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found.' })
+        }
+
         const items = await orderItemService.getOrderItems(order._id)
         res.status(200).json({ order, items })
     } catch (err) {
         console.log(err)
-        if (err.message === 'Order not found.') {
-            return res.status(404).json({ message: err.message })
-        }
         res.status(500).json({ message: 'Internal Server Error' })
     }
 }
@@ -76,13 +84,15 @@ async function getOrderById(req, res) {
 async function cancelOrder(req, res) {
     try {
         const order = await orderService.cancelOrder(req.params.id, req.user._id)
+
+        if (!order) {
+            return res.status(400).json({ message: 'Order cannot be cancelled.' })
+        }
+
         res.status(200).json(order)
     } catch (err) {
         console.log(err)
-        if (err.message === 'Order not found.') {
-            return res.status(404).json({ message: err.message })
-        }
-        res.status(400).json({ message: err.message })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
