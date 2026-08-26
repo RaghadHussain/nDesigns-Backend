@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth.routes')
 const addressRoutes = require('./routes/address.routes')
 const variantRoutes = require('./routes/variant.routes')
 const productRoutes = require('./routes/product.routes')
+const loyaltySettingRoutes = require('./routes/loyaltySettings.routes')
 
 
 // Middleware
@@ -28,6 +29,7 @@ app.use('/auth',authRoutes)
 app.use('/address', addressRoutes)
 app.use('/variants', variantRoutes)
 app.use('/products', productRoutes)
+app.use('points', loyaltySettingRoutes)
 
 
 

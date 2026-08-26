@@ -10,10 +10,9 @@ async function getMyCart(req, res) {
 
         const items = await CartItem.find({ cartId: cart._id }).populate('variantId')
 
-        return res.status(200).json({ cart, items })
+        res.status(200).json({ cart, items })
     } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: 'Internal Server Error' })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
@@ -26,10 +25,9 @@ async function clearMyCart(req, res) {
 
         await CartItem.deleteMany({ cartId: cart._id })
 
-        return res.status(200).json({ message: 'Cart cleared successfully.' })
+        res.status(200).json({ message: 'Cart cleared successfully.' })
     } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: 'Internal Server Error' })
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
