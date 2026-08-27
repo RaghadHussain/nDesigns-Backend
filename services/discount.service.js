@@ -32,7 +32,12 @@ async function incrementUsage(discountId) {
     return Discount.findByIdAndUpdate(discountId, { $inc: { usedCount: 1 } })
 }
 
+async function getAllDiscounts() {
+    return Discount.find().sort({ createdAt: -1 })
+}
+
 module.exports = {
     validateDiscount,
-    incrementUsage
+    incrementUsage,
+    getAllDiscounts
 }

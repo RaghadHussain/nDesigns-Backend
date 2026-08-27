@@ -24,6 +24,16 @@ async function createDiscount(req, res) {
     }
 }
 
+async function getAllDiscounts(req, res) {
+    try {
+        const discounts = await discountService.getAllDiscounts()
+        res.status(200).json(discounts)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Internal Server Error' })
+    }
+}
+
 async function applyDiscount(req, res) {
     try {
         const { code } = req.body
@@ -46,5 +56,6 @@ async function applyDiscount(req, res) {
 
 module.exports = {
     createDiscount,
+    getAllDiscounts,
     applyDiscount
 }
