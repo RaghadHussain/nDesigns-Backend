@@ -1,4 +1,5 @@
 const Product = require('../models/Product')
+const Category = require('../models/Category')
 
 async function createProduct(req, res) {
     const { name, description, category } = req.body
@@ -82,10 +83,44 @@ async function deleteProduct(req, res) {
         res.status(500).json({ message: 'Internal Server Error' })
     }
 }
+
+async function search(req, res) {
+    try{
+        const query = req.query.q
+
+        if(!query){
+            return res.json([])
+        }
+
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+        const matchingCategories = await Category.find({
+            name: { $regex: escapedQuery, $options: "i" }
+        }).select('_id')
+
+        const categoryIds = matchingCategories.map(c => c._id)
+
+        const results = await Product.find({
+            $or: [
+                { name: { $regex: escapedQuery, $options: "i" } },
+                { description: { $regex: escapedQuery, $options: "i" } },
+                { category: { $in: categoryIds } }
+            ]
+        }).populate('category', 'name')
+
+        res.status(200).json(results)
+    }catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Internal Server Error' })
+    }
+
+}
+
 module.exports = {
     createProduct,
     getAllProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    search
 }

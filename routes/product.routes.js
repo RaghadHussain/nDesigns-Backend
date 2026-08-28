@@ -11,6 +11,8 @@ router.post("/", verifyToken, isAdmin, upload.array('images'), productController
 
 router.get("/", productController.getAllProducts);
 
+router.get("/search", productController.search);
+
 router.get("/:id", validateObjectId, productController.getProductById);
 
 router.put("/:id", verifyToken, isAdmin,upload.array('images'), validateObjectId, productController.updateProduct);
