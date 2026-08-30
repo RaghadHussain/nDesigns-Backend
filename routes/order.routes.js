@@ -10,6 +10,10 @@ router.get('/', verifyToken, orderController.getUserOrders)
 
 router.get('/admin', verifyToken, isAdmin, orderController.getAllOrders)
 
+router.get('/admin/stats', verifyToken, isAdmin, orderController.getDashboardStats)
+
+router.get('/admin/recent', verifyToken, isAdmin, orderController.getRecentOrders)
+
 router.get('/:id', verifyToken, validateObjectId, orderController.getOrderById)
 
 router.patch('/:id/status', verifyToken, isAdmin, validateObjectId, orderController.updateOrderStatus)

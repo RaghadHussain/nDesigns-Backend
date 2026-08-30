@@ -2,6 +2,7 @@ const Cart = require('../models/Cart')
 const CartItem = require('../models/CartItem')
 const ProductVariant = require('../models/ProductVariant')
 
+
 async function addCartItem(req, res) {
     const { variantId, quantity } = req.body
     try {
@@ -35,6 +36,7 @@ async function addCartItem(req, res) {
         res.status(500).json({ message: 'Internal Server Error' })
     }
 }
+
 
 async function updateCartItem(req, res) {
     const { quantity } = req.body

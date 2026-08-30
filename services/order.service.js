@@ -1,4 +1,6 @@
 const Order = require('../models/Order')
+const User = require('../models/User')
+const OrderItem = require('../models/OrderItem')
 const Cart = require('../models/Cart')
 const CartItem = require('../models/CartItem')
 const discountService = require('./discount.service')
@@ -136,6 +138,66 @@ async function getAllOrders() {
     return Order.find().sort({ createdAt: -1 })
 }
 
+async function getDashboardStats() {
+    const [totalOrders, revenueAgg, pendingTailoring, activeCustomers] = await Promise.all([
+        Order.countDocuments(),
+        Order.aggregate([
+            { $match: { orderStatus: { $ne: 'cancelled' } } },
+            { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]),
+        Order.countDocuments({ orderStatus: { $in: ['pending', 'confirmed'] } }),
+        User.countDocuments({ role: 'customer' })
+    ])
+
+    return {
+        totalOrders,
+        netRevenue: revenueAgg[0]?.total || 0,
+        pendingTailoring,
+        activeCustomers
+    }
+}
+
+async function getRecentOrders(limit = 20) {
+    const orders = await Order.find()
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .populate('userId', 'username')
+
+    const orderItems = await OrderItem.find({ orderId: { $in: orders.map(order => order._id) } })
+        .populate({ path: 'variantId', populate: { path: 'productId', select: 'name' } })
+
+    const itemsByOrderId = {}
+    for (const item of orderItems) {
+        const key = item.orderId.toString()
+        if (!itemsByOrderId[key]) {
+            itemsByOrderId[key] = []
+        }
+        itemsByOrderId[key].push(item)
+    }
+
+    return orders.map(order => {
+        const items = itemsByOrderId[order._id.toString()] || []
+        const firstItem = items[0]
+
+        let orderedItem = '-'
+        if (firstItem?.variantId?.productId) {
+            orderedItem = `${firstItem.variantId.productId.name} (${firstItem.variantId.size})`
+            if (items.length > 1) {
+                orderedItem += ` +${items.length - 1} more`
+            }
+        }
+
+        return {
+            _id: order._id,
+            client: order.userId?.username || 'Unknown',
+            orderedDate: order.createdAt,
+            orderedItem,
+            totalCost: order.totalAmount,
+            status: order.orderStatus
+        }
+    })
+}
+
 async function getOrderById(orderId, userId) {
     const order = await Order.findOne({ _id: orderId, userId })
     if (!order) {
@@ -170,6 +232,8 @@ module.exports = {
     updateOrderStatus,
     getUserOrders,
     getAllOrders,
+    getDashboardStats,
+    getRecentOrders,
     getOrderById,
     cancelOrder
 }

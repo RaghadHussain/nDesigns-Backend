@@ -65,6 +65,26 @@ async function getAllOrders(req, res) {
     }
 }
 
+async function getDashboardStats(req, res) {
+    try {
+        const stats = await orderService.getDashboardStats()
+        res.status(200).json(stats)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Internal Server Error' })
+    }
+}
+
+async function getRecentOrders(req, res) {
+    try {
+        const orders = await orderService.getRecentOrders(20)
+        res.status(200).json(orders)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Internal Server Error' })
+    }
+}
+
 async function getOrderById(req, res) {
     try {
         const order = await orderService.getOrderById(req.params.id, req.user._id)
@@ -101,6 +121,8 @@ module.exports = {
     updateOrderStatus,
     getUserOrders,
     getAllOrders,
+    getDashboardStats,
+    getRecentOrders,
     getOrderById,
     cancelOrder
 }
