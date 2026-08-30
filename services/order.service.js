@@ -7,6 +7,7 @@ const discountService = require('./discount.service')
 const loyaltyService = require('./loyalty.service')
 const orderItemService = require('./orderItem.service')
 const variantService = require('./variant.service')
+const deliverySettingsService = require('./deliverySettings.service')
 
 function calculateSubtotal(cartItems) {
     let subTotal = 0
@@ -18,21 +19,15 @@ function calculateSubtotal(cartItems) {
 
 async function checkout(data) {
     const { userId, addressId, paymentMethod, discountCode } = data
-    let { pointsToRedeem, deliveryFee } = data
+    let { pointsToRedeem } = data
+    const deliveryFee = await deliverySettingsService.getDeliveryFee()
 
     if (!pointsToRedeem) {
         pointsToRedeem = 0
     }
-    if (!deliveryFee) {
-        deliveryFee = 0
-    }
 
     if (pointsToRedeem < 0) {
         console.log('pointsToRedeem cannot be negative')
-        return null
-    }
-    if (deliveryFee < 0) {
-        console.log('deliveryFee cannot be negative')
         return null
     }
 
