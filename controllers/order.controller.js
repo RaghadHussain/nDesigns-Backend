@@ -5,7 +5,7 @@ const User = require('../models/User')
 
 async function checkout(req, res) {
     try {
-        const { addressId, paymentMethod, discountCode, pointsToRedeem, deliveryFee } = req.body
+        const { addressId, paymentMethod, discountCode, pointsToRedeem } = req.body
 
         if (!addressId || !paymentMethod) {
             return res.status(400).json({ message: 'Address and payment method are required.' })
@@ -16,8 +16,7 @@ async function checkout(req, res) {
             addressId,
             paymentMethod,
             discountCode,
-            pointsToRedeem,
-            deliveryFee
+            pointsToRedeem
         })
 
         if (!order) {
