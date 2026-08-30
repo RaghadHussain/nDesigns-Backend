@@ -1,6 +1,7 @@
 const orderService = require('../services/order.service')
 const orderItemService = require('../services/orderItem.service')
 const Order = require('../models/Order')
+const User = require('../models/User')
 
 async function checkout(req, res) {
     try {
@@ -93,7 +94,9 @@ async function getOrderStatuses(req, res) {
 
 async function getOrderById(req, res) {
     try {
-        const order = await orderService.getOrderById(req.params.id, req.user._id)
+        const requestingUser = await User.findById(req.user._id)
+        const isAdminUser = requestingUser?.role === 'admin'
+        const order = await orderService.getOrderById(req.params.id, req.user._id, isAdminUser)
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' })

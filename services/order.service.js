@@ -198,8 +198,9 @@ async function getRecentOrders(limit = 20) {
     })
 }
 
-async function getOrderById(orderId, userId) {
-    const order = await Order.findOne({ _id: orderId, userId })
+async function getOrderById(orderId, userId, isAdminUser) {
+    const query = isAdminUser ? { _id: orderId } : { _id: orderId, userId }
+    const order = await Order.findOne(query)
     if (!order) {
         console.log('Order not found')
         return null
