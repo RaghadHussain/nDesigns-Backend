@@ -1,5 +1,6 @@
 const orderService = require('../services/order.service')
 const orderItemService = require('../services/orderItem.service')
+const Order = require('../models/Order')
 
 async function checkout(req, res) {
     try {
@@ -85,6 +86,11 @@ async function getRecentOrders(req, res) {
     }
 }
 
+async function getOrderStatuses(req, res) {
+    const statuses = Order.schema.path('orderStatus').enumValues
+    res.status(200).json(statuses)
+}
+
 async function getOrderById(req, res) {
     try {
         const order = await orderService.getOrderById(req.params.id, req.user._id)
@@ -123,6 +129,7 @@ module.exports = {
     getAllOrders,
     getDashboardStats,
     getRecentOrders,
+    getOrderStatuses,
     getOrderById,
     cancelOrder
 }
