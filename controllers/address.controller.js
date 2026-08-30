@@ -52,23 +52,8 @@ async function updateUserAddress(req, res) {
     }
 }
 
-async function deleteUserAddress(req, res){
-    try{
-        const deletedAddress = await Address.findOneAndDelete({_id : req.params.id, userId: req.user._id})
-        if(!deletedAddress){
-                return res.status(404).json({ message: 'No Address Found' })
-            }
-        res.status(204).json(deletedAddress)
-    }catch(e){
-        res.status(500).json({ message: e.message })
-    }
-}
-
-
-
 module.exports = {
     createNewAddress,
     getUserAddress,
-    updateUserAddress,
-    deleteUserAddress
+    updateUserAddress
 }
