@@ -22,7 +22,7 @@ async function createProduct(req, res) {
 
 async function getAllProducts(req, res) {
     try {
-        const products = await Product.find()
+        const products = await Product.find().populate('category', 'name')
         res.status(200).json(products)
     } catch (err) {
         console.log(err)

@@ -28,7 +28,7 @@ async function createCategory(req, res) {
 
 async function getAllCategories(req, res) {
     try {
-        const allCategories = await Category.find()
+        const allCategories = await Category.find().populate('parentCategory', 'name')
         res.status(200).json(allCategories)
     } catch (err) {
         console.log(err)
