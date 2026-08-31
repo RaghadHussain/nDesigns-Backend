@@ -25,12 +25,14 @@ async function checkout(req, res) {
         }
 
         try {
-            await orderService.sendOrderConfirmation(order, req.user._id)
+            const response = await orderService.sendOrderConfirmation(order, req.user._id)
+            console.log(response)
         } catch (e) {
             console.log('Failed to send order confirmation email:', e)
         }
 
-        res.status(201).json(order)
+
+         res.status(201).json(order)
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Internal Server Error' })
