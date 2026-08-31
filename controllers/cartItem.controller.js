@@ -21,8 +21,14 @@ async function addCartItem(req, res) {
         }
 
         let cartItem = await CartItem.findOne({ cartId: cart._id, variantId })
+        const requestedQuantity = cartItem ? cartItem.quantity + quantity : quantity
+
+        if (requestedQuantity > variant.quantity) {
+            return res.status(409).json({ message: 'Not enough stock available.' })
+        }
+
         if (cartItem) {
-            cartItem.quantity += quantity
+            cartItem.quantity = requestedQuantity
             await cartItem.save()
         } else {
             cartItem = await CartItem.create({ cartId: cart._id, variantId, quantity })
@@ -53,6 +59,14 @@ async function updateCartItem(req, res) {
         const cartItem = await CartItem.findOne({ _id: req.params.id, cartId: cart._id })
         if (!cartItem) {
             return res.status(404).json({ message: 'Cart item not found.' })
+        }
+
+        const variant = await ProductVariant.findById(cartItem.variantId)
+        if (!variant) {
+            return res.status(404).json({ message: 'Variant not found.' })
+        }
+        if (quantity > variant.quantity) {
+            return res.status(409).json({ message: 'Not enough stock available.' })
         }
 
         cartItem.quantity = quantity

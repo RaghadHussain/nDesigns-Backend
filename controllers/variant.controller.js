@@ -1,5 +1,7 @@
 const ProductVariant = require('../models/ProductVariant')
 const Product = require('../models/Product')
+const OrderItem = require('../models/OrderItem')
+const CartItem = require('../models/CartItem')
 
 async function createVariant(req, res) {
     const { size, price, quantity } = req.body
@@ -90,11 +92,18 @@ async function getVariantById(req, res) {
 
 async function deleteVariant(req, res) {
     try {
-        const deletedVariant = await ProductVariant.findByIdAndDelete(req.params.variantId)
-
-        if (!deletedVariant) {
+        const variant = await ProductVariant.findById(req.params.variantId)
+        if (!variant) {
             return res.status(404).json({ message: 'Variant not found.' })
         }
+
+        const orderedVariant = await OrderItem.findOne({ variantId: req.params.variantId })
+        if (orderedVariant) {
+            return res.status(409).json({ message: 'Cannot delete a variant that appears in existing orders.' })
+        }
+
+        await CartItem.deleteMany({ variantId: req.params.variantId })
+        await ProductVariant.findByIdAndDelete(req.params.variantId)
 
         return res.status(200).json({ message: 'Variant deleted successfully.' })
     } catch (err) {
