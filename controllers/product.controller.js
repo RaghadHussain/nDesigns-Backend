@@ -22,7 +22,7 @@ async function createProduct(req, res) {
 
 async function getAllProducts(req, res) {
     try {
-        const products = await Product.find().populate('category', 'name')
+        const products = await Product.find({ isActive: { $ne: false } }).populate('category', 'name')
         res.status(200).json(products)
     } catch (err) {
         console.log(err)
@@ -72,11 +72,11 @@ async function updateProduct(req, res) {
 
 async function deleteProduct(req, res) {
     try {
-        const product = await Product.findById(req.params.id)
+        const product = await Product.findByIdAndUpdate(req.params.id, { isActive: false })
         if (!product) {
             return res.status(404).json({ message: 'Product not found.' })
         }
-        await Product.findByIdAndDelete(req.params.id)
+
         res.status(200).json({ message: 'Product deleted successfully.' })
     } catch (err) {
         console.log(err)
@@ -101,6 +101,7 @@ async function search(req, res) {
         const categoryIds = matchingCategories.map(c => c._id)
 
         const results = await Product.find({
+            isActive: { $ne: false },
             $or: [
                 { name: { $regex: escapedQuery, $options: "i" } },
                 { description: { $regex: escapedQuery, $options: "i" } },

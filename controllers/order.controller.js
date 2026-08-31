@@ -1,10 +1,12 @@
 const orderService = require('../services/order.service')
 const orderItemService = require('../services/orderItem.service')
+const Order = require('../models/Order')
+const User = require('../models/User')
 
 
 async function checkout(req, res) {
     try {
-        const { addressId, paymentMethod, discountCode, pointsToRedeem, deliveryFee } = req.body
+        const { addressId, paymentMethod, discountCode, pointsToRedeem } = req.body
 
         if (!addressId || !paymentMethod) {
             return res.status(400).json({ message: 'Address and payment method are required.' })
@@ -15,8 +17,7 @@ async function checkout(req, res) {
             addressId,
             paymentMethod,
             discountCode,
-            pointsToRedeem,
-            deliveryFee
+            pointsToRedeem
         })
 
         if (!order) {
@@ -92,9 +93,16 @@ async function getRecentOrders(req, res) {
     }
 }
 
+async function getOrderStatuses(req, res) {
+    const statuses = Order.schema.path('orderStatus').enumValues
+    res.status(200).json(statuses)
+}
+
 async function getOrderById(req, res) {
     try {
-        const order = await orderService.getOrderById(req.params.id, req.user._id)
+        const requestingUser = await User.findById(req.user._id)
+        const isAdminUser = requestingUser?.role === 'admin'
+        const order = await orderService.getOrderById(req.params.id, req.user._id, isAdminUser)
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found.' })
@@ -132,6 +140,7 @@ module.exports = {
     getAllOrders,
     getDashboardStats,
     getRecentOrders,
+    getOrderStatuses,
     getOrderById,
     cancelOrder
 }

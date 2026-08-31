@@ -8,6 +8,7 @@ const loyaltyService = require('./loyalty.service')
 const orderItemService = require('./orderItem.service')
 const variantService = require('./variant.service')
 const sendEmail = require('../utils/mailer')
+const deliverySettingsService = require('./deliverySettings.service')
 
 function calculateSubtotal(cartItems) {
     let subTotal = 0
@@ -19,21 +20,15 @@ function calculateSubtotal(cartItems) {
 
 async function checkout(data) {
     const { userId, addressId, paymentMethod, discountCode } = data
-    let { pointsToRedeem, deliveryFee } = data
+    let { pointsToRedeem } = data
+    const deliveryFee = await deliverySettingsService.getDeliveryFee()
 
     if (!pointsToRedeem) {
         pointsToRedeem = 0
     }
-    if (!deliveryFee) {
-        deliveryFee = 0
-    }
 
     if (pointsToRedeem < 0) {
         console.log('pointsToRedeem cannot be negative')
-        return null
-    }
-    if (deliveryFee < 0) {
-        console.log('deliveryFee cannot be negative')
         return null
     }
 
@@ -199,8 +194,9 @@ async function getRecentOrders(limit = 20) {
     })
 }
 
-async function getOrderById(orderId, userId) {
-    const order = await Order.findOne({ _id: orderId, userId })
+async function getOrderById(orderId, userId, isAdminUser) {
+    const query = isAdminUser ? { _id: orderId } : { _id: orderId, userId }
+    const order = await Order.findOne(query)
     if (!order) {
         console.log('Order not found')
         return null

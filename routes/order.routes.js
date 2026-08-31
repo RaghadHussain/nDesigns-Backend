@@ -14,6 +14,8 @@ router.get('/admin/stats', verifyToken, isAdmin, orderController.getDashboardSta
 
 router.get('/admin/recent', verifyToken, isAdmin, orderController.getRecentOrders)
 
+router.get('/statuses', verifyToken, orderController.getOrderStatuses)
+
 router.get('/:id', verifyToken, validateObjectId, orderController.getOrderById)
 
 router.patch('/:id/status', verifyToken, isAdmin, validateObjectId, orderController.updateOrderStatus)

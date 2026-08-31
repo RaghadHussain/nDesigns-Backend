@@ -20,6 +20,10 @@ const productSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
         required: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
   },
   { timestamps: true },

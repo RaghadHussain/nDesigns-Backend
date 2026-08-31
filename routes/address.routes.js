@@ -8,6 +8,4 @@ router.get('/', verifyToken, addressController.getUserAddress)
 
 router.put('/:id', verifyToken, addressController.updateUserAddress)
 
-router.delete('/:id',verifyToken, addressController.deleteUserAddress)
-
 module.exports = router;
