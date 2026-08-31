@@ -84,6 +84,7 @@ async function signIn(req, res) {
         email: user.email,
         phoneNumber: user.phoneNumber,
         role: user.role,
+        loyaltyPoints: user.loyaltyPoints,
       },
     });
   } catch (err) {
@@ -111,6 +112,7 @@ async function verifyUser(req, res) {
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
+      loyaltyPoints: user.loyaltyPoints,
     });
   } catch (err) {
     console.error(err);
