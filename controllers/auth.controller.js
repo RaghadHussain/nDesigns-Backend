@@ -35,8 +35,9 @@ async function signUp(req, res) {
       });
     }
     if (err.code === 11000) {
+      const field = Object.keys(err.keyValue)[0];
       return res.status(409).json({
-        message: "Username already exists",
+        message: `This ${field} already exsist.`,
       });
     }
 
