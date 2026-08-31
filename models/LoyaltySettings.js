@@ -5,6 +5,7 @@ const loyaltySettingsSchema = new mongoose.Schema(
     pointsPerBHD: {
       type: Number,
       required: true,
+      min: 0,
     },
   },
   { timestamps: true },
