@@ -7,6 +7,7 @@ const discountService = require('./discount.service')
 const loyaltyService = require('./loyalty.service')
 const orderItemService = require('./orderItem.service')
 const variantService = require('./variant.service')
+const sendEmail = require('../utils/mailer')
 
 function calculateSubtotal(cartItems) {
     let subTotal = 0
@@ -226,6 +227,52 @@ async function cancelOrder(orderId, userId) {
     return order.save()
 }
 
+async function sendOrderConfirmation(order, userId) {
+    const [user, items] = await Promise.all([
+        User.findById(userId),
+        orderItemService.getOrderItems(order._id)
+    ])
+
+    const itemsListText = items.map(item => {
+        const size = item.variantId?.size ? ` (${item.variantId.size})` : ''
+        return `- Item${size} x${item.quantity} - BHD ${Number(item.totalPrice).toFixed(2)}`
+    }).join('\n')
+
+    const subject = `Order Confirmation - #${order._id}`
+
+    const text = `Dear ${user.username},
+
+Thank you for your order with ndesigns!
+
+We’re pleased to confirm that your order has been successfully placed and is now being processed.
+
+Order Details
+Order Number: #${order._id}
+Order Date: ${new Date(order.createdAt).toLocaleDateString()}
+Order Status: ${order.orderStatus}
+
+Items Ordered
+${itemsListText}
+
+Order Summary
+Subtotal: BHD ${Number(order.subTotal).toFixed(2)}
+Shipping: BHD ${Number(order.deliveryFee).toFixed(2)}
+Total: BHD ${Number(order.totalAmount).toFixed(2)}
+
+We’ll notify you once your order has been shipped.
+
+Thank you for shopping with ndesigns. We appreciate your business!
+
+Best regards,
+ndesigns`
+
+    return sendEmail({
+        to: user.email,
+        subject,
+        text,
+    })
+}
+
 module.exports = {
     calculateSubtotal,
     checkout,
@@ -235,5 +282,6 @@ module.exports = {
     getDashboardStats,
     getRecentOrders,
     getOrderById,
-    cancelOrder
+    cancelOrder,
+    sendOrderConfirmation
 }

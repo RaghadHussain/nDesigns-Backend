@@ -1,6 +1,7 @@
 const orderService = require('../services/order.service')
 const orderItemService = require('../services/orderItem.service')
 
+
 async function checkout(req, res) {
     try {
         const { addressId, paymentMethod, discountCode, pointsToRedeem, deliveryFee } = req.body
@@ -20,6 +21,12 @@ async function checkout(req, res) {
 
         if (!order) {
             return res.status(400).json({ message: 'Checkout failed. Please check your cart, discount code, and points.' })
+        }
+
+        try {
+            await orderService.sendOrderConfirmation(order, req.user._id)
+        } catch (e) {
+            console.log('Failed to send order confirmation email:', e)
         }
 
         res.status(201).json(order)
@@ -115,6 +122,8 @@ async function cancelOrder(req, res) {
         res.status(500).json({ message: 'Internal Server Error' })
     }
 }
+
+
 
 module.exports = {
     checkout,
