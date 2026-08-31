@@ -2,7 +2,7 @@ const LoyaltySettings = require('../models/LoyaltySettings')
 const User = require('../models/User')
 
 async function getPointsPerBHD() {
-    const settings = await LoyaltySettings.findOne()
+    const settings = await LoyaltySettings.findOne().sort({ createdAt: -1 })
     if (!settings) {
         return 0
     }
@@ -10,7 +10,10 @@ async function getPointsPerBHD() {
 }
 
 function calculatePointsEarned(amount, pointsPerBHD) {
-    return Math.floor(amount * pointsPerBHD)
+    if (!pointsPerBHD) {
+        return 0
+    }
+    return Math.floor(amount / pointsPerBHD)
 }
 
 async function calculateRedemptionValue(pointsToRedeem, userId) {
@@ -44,6 +47,13 @@ async function redeemPoints(userId, pointsToRedeem) {
     return User.findByIdAndUpdate(userId, { $inc: { loyaltyPoints: -pointsToRedeem } })
 }
 
+async function refundPoints(userId, points) {
+    if (!points) {
+        return
+    }
+    return User.findByIdAndUpdate(userId, { $inc: { loyaltyPoints: points } })
+}
+
 async function earnPoints(userId, amount) {
     const pointsPerBHD = await getPointsPerBHD()
     const pointsEarned = calculatePointsEarned(amount, pointsPerBHD)
@@ -58,5 +68,6 @@ module.exports = {
     calculatePointsEarned,
     calculateRedemptionValue,
     redeemPoints,
+    refundPoints,
     earnPoints
 }

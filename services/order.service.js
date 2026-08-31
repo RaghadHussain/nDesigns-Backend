@@ -89,7 +89,8 @@ async function checkout(data) {
         discountId: discount ? discount._id : undefined,
         discountAmount,
         deliveryFee,
-        totalAmount
+        totalAmount,
+        pointsRedeemed: pointsToRedeem
     })
 
     await orderItemService.createOrderItems(order._id, cartItems)
@@ -105,7 +106,6 @@ async function checkout(data) {
     if (pointsToRedeem) {
         await loyaltyService.redeemPoints(userId, pointsToRedeem)
     }
-    await loyaltyService.earnPoints(userId, amountAfterPoints)
 
     await CartItem.deleteMany({ cartId: cart._id })
 
@@ -113,15 +113,24 @@ async function checkout(data) {
 }
 
 async function updateOrderStatus(orderId, status) {
+    const existingOrder = await Order.findById(orderId)
+    if (!existingOrder) {
+        console.log('Order not found')
+        return null
+    }
+    const wasAlreadyDelivered = existingOrder.orderStatus === 'delivered'
+
     const order = await Order.findByIdAndUpdate(
         orderId,
         { orderStatus: status },
         { new: true, runValidators: true }
     )
-    if (!order) {
-        console.log('Order not found')
-        return null
+
+    if (status === 'delivered' && !wasAlreadyDelivered) {
+        const pointsBaseAmount = order.totalAmount - order.deliveryFee
+        await loyaltyService.earnPoints(order.userId, pointsBaseAmount)
     }
+
     return order
 }
 
@@ -219,7 +228,13 @@ async function cancelOrder(orderId, userId) {
     }
 
     order.orderStatus = 'cancelled'
-    return order.save()
+    await order.save()
+
+    if (order.pointsRedeemed) {
+        await loyaltyService.refundPoints(userId, order.pointsRedeemed)
+    }
+
+    return order
 }
 
 module.exports = {
