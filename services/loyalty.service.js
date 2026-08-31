@@ -1,12 +1,9 @@
-const LoyaltySettings = require('../models/LoyaltySettings')
 const User = require('../models/User')
+const settingsService = require('./settings.service')
 
 async function getPointsPerBHD() {
-    const settings = await LoyaltySettings.findOne().sort({ createdAt: -1 })
-    if (!settings) {
-        return 0
-    }
-    return settings.pointsPerBHD
+    const { pointsPerBHD } = await settingsService.getSettings()
+    return pointsPerBHD
 }
 
 function calculatePointsEarned(amount, pointsPerBHD) {
