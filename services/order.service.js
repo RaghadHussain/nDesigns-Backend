@@ -271,7 +271,6 @@ Subtotal: BHD ${Number(order.subTotal).toFixed(2)}
 Shipping: BHD ${Number(order.deliveryFee).toFixed(2)}
 Total: BHD ${Number(order.totalAmount).toFixed(2)}
 
-We’ll notify you once your order has been shipped.
 
 Thank you for shopping with ndesigns. We appreciate your business!
 
