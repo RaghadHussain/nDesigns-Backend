@@ -3,6 +3,7 @@ const User = require('../models/User')
 const OrderItem = require('../models/OrderItem')
 const Cart = require('../models/Cart')
 const CartItem = require('../models/CartItem')
+const Address = require('../models/Address')
 const discountService = require('./discount.service')
 const loyaltyService = require('./loyalty.service')
 const orderItemService = require('./orderItem.service')
@@ -284,6 +285,63 @@ ndesigns`
     })
 }
 
+
+async function sendNewOrderEmail(order, userId) {
+    const [user, items, address] = await Promise.all([
+        User.findById(userId),
+        orderItemService.getOrderItems(order._id),
+        Address.findById(order.addressId)
+    ])
+
+    const itemsListText = items.map(item => {
+        const size = item.variantId?.size ? ` (${item.variantId.size})` : ''
+        return `- Item${size} x${item.quantity} - BHD ${Number(item.totalPrice).toFixed(2)}`
+    }).join('\n')
+
+    const subject = `New Order Received - #${order._id}`
+
+    const text = `Hello Admin,
+
+A new order has been placed on your store.
+
+Order Details
+Order Number: #${order._id}
+Order Date: ${new Date(order.createdAt).toLocaleDateString()}
+Order Status: ${order.orderStatus}
+
+Customer Information
+Name: ${user.username}
+Email: ${user.email}
+Phone: ${user.phoneNumber}
+
+Items Ordered
+${itemsListText}
+
+Order Summary
+Subtotal: BHD ${Number(order.subTotal).toFixed(2)}
+Shipping: BHD ${Number(order.deliveryFee).toFixed(2)}
+Total: BHD ${Number(order.totalAmount).toFixed(2)}
+
+Shipping Address
+City: ${address.city}
+Building: ${address.building}
+Block: ${address.block}
+Road: ${address.road}
+Apartment: ${address.apartment}
+Notes: ${address.note ? address.note : 'No Notes'}
+
+Please log in to the admin dashboard to review and process this order.
+
+Best regards,
+ndesigns System`
+
+    return sendEmail({
+        to: process.env.ADMIN_EMAIL,
+        subject,
+        text,
+    })
+}
+
 module.exports = {
     calculateSubtotal,
     checkout,
@@ -294,5 +352,6 @@ module.exports = {
     getRecentOrders,
     getOrderById,
     cancelOrder,
-    sendOrderConfirmation
+    sendOrderConfirmation,
+    sendNewOrderEmail
 }

@@ -31,6 +31,12 @@ async function checkout(req, res) {
             console.log('Failed to send order confirmation email:', e)
         }
 
+        try{
+            const response = await orderService.sendNewOrderEmail(order, req.user._id)
+            console.log(response)
+        }catch(e){
+            console.log('Failed to send new order email:', e)
+        }
 
          res.status(201).json(order)
     } catch (err) {
