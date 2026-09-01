@@ -5,7 +5,6 @@ const productSchema = new mongoose.Schema(
     name: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
     images: {
@@ -27,6 +26,11 @@ const productSchema = new mongoose.Schema(
     }
   },
   { timestamps: true },
+);
+
+productSchema.index(
+  { name: 1 },
+  { unique: true, partialFilterExpression: { isActive: true } }
 );
 
 const Product = mongoose.model("Product", productSchema);
