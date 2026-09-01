@@ -9,6 +9,16 @@ async function createDiscount(req, res) {
             return res.status(400).json({ message: 'Code, discountValue, usageLimit, startDate, and endDate are required.' })
         }
 
+        const startOfToday = new Date()
+        startOfToday.setHours(0, 0, 0, 0)
+
+        if (new Date(startDate) < startOfToday) {
+            return res.status(400).json({ message: 'Start date cannot be in the past.' })
+        }
+        if (new Date(endDate) <= new Date(startDate)) {
+            return res.status(400).json({ message: 'End date must be after start date.' })
+        }
+
         const discount = await Discount.create({ code, discountValue, usageLimit, startDate, endDate })
 
         res.status(201).json(discount)
