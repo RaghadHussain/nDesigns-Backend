@@ -3,8 +3,9 @@ const verifyToken = require('../middleware/verifyToken')
 const isAdmin = require('../middleware/isAdmin')
 const validateObjectId = require('../middleware/validateObjectId')
 const orderController = require('../controllers/order.controller')
+const {emailLimiter} = require('../middleware/rateLimiters')
 
-router.post('/checkout', verifyToken, orderController.checkout)
+router.post('/checkout',emailLimiter, verifyToken, orderController.checkout)
 
 router.get('/', verifyToken, orderController.getUserOrders)
 

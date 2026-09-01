@@ -25,9 +25,20 @@ const authLimiter = rateLimit({
   },
 });
 
+const emailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 2,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: "Too many email attempts. Please try again later.",
+  },
+});
 
 
 module.exports = {
   authLimiter,
-  standardLimiter
+  standardLimiter,
+  emailLimiter
 }
