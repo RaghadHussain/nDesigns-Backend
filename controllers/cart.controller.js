@@ -8,7 +8,8 @@ async function getMyCart(req, res) {
             cart = await Cart.create({ userId: req.user._id })
         }
 
-        const items = await CartItem.find({ cartId: cart._id }).populate('variantId')
+        const items = await CartItem.find({ cartId: cart._id })
+            .populate({ path: 'variantId', populate: { path: 'productId', select: 'name' } })
 
         res.status(200).json({ cart, items })
     } catch (err) {
