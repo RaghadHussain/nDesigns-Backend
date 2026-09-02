@@ -16,7 +16,8 @@ async function createOrderItems(orderId, cartItems) {
 }
 
 async function getOrderItems(orderId) {
-    return OrderItem.find({ orderId }).populate('variantId')
+    return OrderItem.find({ orderId })
+        .populate({ path: 'variantId', populate: { path: 'productId', select: 'name' } })
 }
 
 module.exports = {

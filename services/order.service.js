@@ -246,8 +246,9 @@ async function sendOrderConfirmation(order, userId) {
     ])
 
     const itemsListText = items.map(item => {
+        const name = item.variantId?.productId?.name || 'Item'
         const size = item.variantId?.size ? ` (${item.variantId.size})` : ''
-        return `- Item${size} x${item.quantity} - BHD ${Number(item.totalPrice).toFixed(2)}`
+        return `- ${name}${size} x${item.quantity} - BHD ${Number(item.totalPrice).toFixed(2)}`
     }).join('\n')
 
     const subject = `Order Confirmation - #${order._id}`
@@ -293,8 +294,9 @@ async function sendNewOrderEmail(order, userId) {
     ])
 
     const itemsListText = items.map(item => {
+        const name = item.variantId?.productId?.name || 'Item'
         const size = item.variantId?.size ? ` (${item.variantId.size})` : ''
-        return `- Item${size} x${item.quantity} - BHD ${Number(item.totalPrice).toFixed(2)}`
+        return `- ${name}${size} x${item.quantity} - BHD ${Number(item.totalPrice).toFixed(2)}`
     }).join('\n')
 
     const subject = `New Order Received - #${order._id}`
